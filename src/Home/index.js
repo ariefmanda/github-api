@@ -1,7 +1,6 @@
 import React, {Component} from 'react';
-import { View, Text, TextInput, WebView, Modal, FlatList, TouchableOpacity} from 'react-native';
+import { View, Text, TextInput, RefreshControl, FlatList, TouchableOpacity} from 'react-native';
 import axios from 'axios'
-import data from '../test.json'
 import styles from './styles';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 
@@ -25,10 +24,12 @@ class Home extends Component {
 
   fetchGithub = async () => {
     try {
+      this.setState({ refreshing: true })
       let { data } = await axios.get("https://api.github.com/users")
       this.setState({
         data_output: data,
-        database: data
+        database: data,
+        refreshing: false
       })
     } catch (error) {
       alert(JSON.stringify(error))
@@ -82,6 +83,13 @@ class Home extends Component {
         </View>
         <FlatList
           data={this.state.data_output}
+          refreshControl={
+            <RefreshControl
+                colors={["#9Bd35A", "#689F38"]}
+                refreshing={this.state.refreshing}
+                onRefresh={this.fetchGithub}
+            />
+          }
           renderItem={({item}) => 
           <TouchableOpacity onPress={()=>this.openWebView(item)}>
             <View 
